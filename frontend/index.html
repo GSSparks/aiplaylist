@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>aiplay</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+  <h1>🎶 aiplay</h1>
+
+  <input id="prompt" placeholder="Describe music..." size="40">
+  <button onclick="generate()">Generate Playlist</button>
+
+  <ul id="playlist"></ul>
+  <video id="player" controls width="400"></video>
+
+  <script>
+    const player = document.getElementById("player");
+    let hls;
+    let tracks = [];
+    let currentIndex = 0;
+
+    async function generate() {
+      const prompt = document.getElementById("prompt").value;
+
+      const res = await fetch("http://localhost:8000/playlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
+      });
+
+      const data = await res.json();
+      tracks = data.tracks;
+      currentIndex = 0;
+
+      const list = document.getElementById("playlist");
+      list.innerHTML = "";
+
+      tracks.forEach((track, index) => {
+        const li = document.createElement("li");
+        li.textContent = track.title;
+
+        li.onclick = () => playTrack(index);
+        list.appendChild(li);
+      });
+
+      // Start playing the first track automatically
+      if (tracks.length > 0) playTrack(0);
+    }
+
+    function playTrack(index) {
+      currentIndex = index;
+      const track = tracks[index];
+
+      if (hls) hls.destroy(); // clean up previous stream
+
+      const proxiedUrl = `http://localhost:8000/proxy?url=${encodeURIComponent(track.url)}`;
+
+      if (Hls.isSupported()) {
+        hls = new Hls();
+        hls.loadSource(proxiedUrl);
+        hls.attachMedia(player);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          player.play();
+        });
+      } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+        player.src = proxiedUrl;
+        player.play();
+      }
+    }
+
+    // Auto-play next track when current ends
+    player.addEventListener("ended", () => {
+      if (currentIndex + 1 < tracks.length) {
+        playTrack(currentIndex + 1);
+      }
+    });
+  </script>
+</body>
+</html>
