@@ -8,7 +8,7 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.responses import Response
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Load .env variables
 load_dotenv()
@@ -87,13 +87,24 @@ def create_playlist(data: Prompt):
     songs = generate_playlist(data.prompt)
     tracks = []
 
-    for song in songs:
-        url = search_youtube(song)
-        if url:
-            tracks.append({
-                "title": song,
-                "url": url
-            })
+    # Run yt-dlp lookups in parallel
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        future_to_song = {
+            executor.submit(search_youtube, song): song
+            for song in songs
+        }
+
+        for future in as_completed(future_to_song):
+            song = future_to_song[future]
+            try:
+                url = future.result()
+                if url:
+                    tracks.append({
+                        "title": song,
+                        "url": url
+                    })
+            except Exception as e:
+                print(f"Error searching {song}: {e}")
 
     return {"tracks": tracks}
 
