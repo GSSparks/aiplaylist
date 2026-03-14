@@ -78,6 +78,17 @@ Then visit:
 http://localhost:8080
 ```
 
+### Or run it Containerized
+
+Clone the repo, add your `.env` file with your OpenAI api key in the `backend` directory. Then from the root directory:
+```
+docker build aiplay:latest .
+```
+Then
+```
+docker run -p 8000:8000 aiplay:latest
+```
+
 ## ⚠️ Legal Note
 
 This project is intended for local development and personal learning. If you plan to deploy it publicly, you should use official streaming APIs (such as the YouTube IFrame Player) instead of proxying or re-streaming content.
