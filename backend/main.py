@@ -52,7 +52,7 @@ app.add_middleware(
 )
 
 # Mount frontend folder
-app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
+app.mount("/app", StaticFiles(directory="../frontend", html=True), name="frontend")
 
 # ---------------- MODELS ----------------
 
