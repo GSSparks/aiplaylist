@@ -19,9 +19,6 @@ from urllib.parse import quote, urljoin, unquote
 
 from fastapi.staticfiles import StaticFiles
 
-# Mount frontend folder
-app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
-
 try:
     from mutagen import File as MutagenFile
     MUTAGEN_AVAILABLE = True
@@ -53,6 +50,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount frontend folder
+app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
 
 # ---------------- MODELS ----------------
 
