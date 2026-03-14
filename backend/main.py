@@ -17,6 +17,11 @@ from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import quote, urljoin, unquote
 
+from fastapi.staticfiles import StaticFiles
+
+# Mount frontend folder
+app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
+
 try:
     from mutagen import File as MutagenFile
     MUTAGEN_AVAILABLE = True
