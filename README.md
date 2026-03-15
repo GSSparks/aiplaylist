@@ -1,14 +1,16 @@
-# 🎶 aiplay
+# 🎶 aiplaylist
 
-**aiplay** is an AI-powered playlist generator that turns natural language prompts into playable music playlists.
+**aiplaylist** is an AI-powered playlist generator that turns natural language prompts into playable music playlists.
 
 Give it a prompt like:
 
 > *"lofi beats for late night coding"*
+
 > *"80s workout montage music"*
+
 > *"soft piano music for studying"*
 
-…and **aiplay** will generate a playlist and stream the tracks automatically.
+…and **aiplaylist** will generate a playlist and stream the tracks automatically.
 
 The project combines a **FastAPI backend**, a **lightweight web frontend**, and AI-powered playlist generation to create a simple local-first music discovery tool.
 
@@ -45,7 +47,7 @@ This project is designed for **learning, experimentation, and self-hosting**.
 # 📦 Project Structure
 
 ```
-aiplay/
+aiplaylist/
 │
 ├─ backend/
 │   ├─ main.py
@@ -66,8 +68,8 @@ aiplay/
 ## 1️⃣ Clone the repository
 
 ```
-git clone https://github.com/yourusername/aiplay.git
-cd aiplay
+git clone https://github.com/yourusername/aiplaylist.git
+cd aiplaylist
 ```
 
 ---
@@ -137,14 +139,14 @@ http://localhost:8080
 
 # 🐳 Running with Docker
 
-Docker is the easiest way to run **aiplay**.
+Docker is the easiest way to run **aiplaylist**.
 
 ## 1️⃣ Build the container
 
 From the project root:
 
 ```
-docker build -t aiplay .
+docker build -t aiplaylist .
 ```
 
 ---
@@ -174,7 +176,7 @@ docker run \
 -p 8000:8000 \
 --env-file backend/.env \
 -v /mnt/server/Music:/music \
-aiplay
+aiplaylist
 ```
 
 Then open:
