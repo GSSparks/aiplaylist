@@ -1,181 +1,363 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>aiplaylist</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-    }
-    .app {
-      width: 100%;
-      max-width: 600px;
-    }
-    h1 {
-      margin-bottom: 15px;
-      text-align: center;
-      font-size: 2rem;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    input, select {
-      flex: 1;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      background: #1e293b;
-      color: white;
-      outline: none;
-    }
-    button {
-      padding: 12px 18px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      background: #3b82f6;
-      color: white;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-    button:hover { background: #2563eb; }
-    button:disabled { background: #334155; cursor: not-allowed; }
-    .spinner {
-      width: 40px;
-      height: 40px;
-      margin: 30px auto;
-      border: 4px solid #1e293b;
-      border-top: 4px solid #3b82f6;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      display: none;
-    }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-    ul { list-style: none; padding: 0; margin-top: 10px; }
-    li {
-      padding: 12px 14px;
-      margin-bottom: 8px;
-      background: #020617;
-      border-radius: 12px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    li:hover { background: #020617ee; }
-    .now-playing { font-size: 12px; color: #60a5fa; margin-left: 10px; }
-    audio { width: 100%; border-radius: 16px; margin-top: 12px; background: #020617; }
-    footer { text-align: center; margin-top: 25px; font-size: 13px; color: #64748b; }
-  </style>
+<title>aiplaylist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<style>
+
+:root{
+  --bg:#020617;
+  --panel:#0f172a;
+  --panel2:#020617;
+  --accent:#3b82f6;
+  --accent2:#60a5fa;
+  --text:#e5e7eb;
+  --muted:#64748b;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:linear-gradient(180deg,#020617,#0f172a);
+  color:var(--text);
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:40px 20px;
+}
+
+.app{
+  width:100%;
+  max-width:720px;
+}
+
+/* ---------- HEADER ---------- */
+
+header{
+  text-align:center;
+  margin-bottom:30px;
+}
+
+.logo{
+  font-size:2.2rem;
+  font-weight:700;
+  letter-spacing:.5px;
+}
+
+.logo span{
+  color:var(--accent2);
+}
+
+.subtitle{
+  color:var(--muted);
+  font-size:.9rem;
+  margin-top:4px;
+}
+
+/* ---------- CARD ---------- */
+
+.card{
+  background:rgba(15,23,42,.75);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:20px;
+}
+
+/* ---------- CONTROLS ---------- */
+
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+input,select{
+  flex:1;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:#020617;
+  color:white;
+  font-size:15px;
+}
+
+input::placeholder{
+  color:#94a3b8;
+}
+
+button{
+  padding:12px 18px;
+  border-radius:10px;
+  border:none;
+  font-size:15px;
+  background:linear-gradient(135deg,var(--accent),#2563eb);
+  color:white;
+  cursor:pointer;
+  transition:.15s;
+}
+
+button:hover{
+  transform:translateY(-1px);
+}
+
+button:disabled{
+  background:#1e293b;
+  cursor:not-allowed;
+}
+
+/* ---------- PLAYER ---------- */
+
+.player{
+  margin-top:15px;
+}
+
+audio{
+  width:100%;
+  margin-top:10px;
+}
+
+/* ---------- PLAYLIST ---------- */
+
+ul{
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+
+li{
+  padding:14px;
+  border-radius:12px;
+  background:var(--panel2);
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  transition:.15s;
+}
+
+li:hover{
+  background:#0b1220;
+}
+
+li.active{
+  border:1px solid var(--accent);
+  background:#050b17;
+}
+
+.track-title{
+  font-size:.95rem;
+}
+
+.now-playing{
+  font-size:.75rem;
+  color:var(--accent2);
+}
+
+/* ---------- SPINNER ---------- */
+
+.spinner{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:4px solid #1e293b;
+  border-top:4px solid var(--accent);
+  animation:spin 1s linear infinite;
+  margin:25px auto;
+  display:none;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+/* ---------- FOOTER ---------- */
+
+footer{
+  text-align:center;
+  margin-top:20px;
+  font-size:12px;
+  color:var(--muted);
+}
+
+</style>
 </head>
+
 <body>
-  <div class="app">
-    <h1>aiplaylist</h1>
 
-    <div class="controls">
-      <input id="prompt" placeholder="Describe music" />
-      <select id="llm">
-        <option value="openai">OpenAI</option>
-        <option value="local">Local LLM</option>
-      </select>
-      <select id="source">
-        <option value="youtube">YouTube</option>
-        <option value="local">Local MP3s</option>
-      </select>
-      <button id="btn" onclick="generate()">Generate</button>
-    </div>
+<div class="app">
 
-    <div id="spinner" class="spinner"></div>
-    <ul id="playlist"></ul>
-    <audio id="audioPlayer" controls style="display:none;"></audio>
-    <footer>AI-generated playlists - local + streaming support</footer>
-  </div>
+<header>
+<div class="logo">ai<span>play</span>list</div>
+<div class="subtitle">AI-generated music playlists</div>
+</header>
 
-  <script>
-    const audioPlayer = document.getElementById("audioPlayer");
-    const btn = document.getElementById("btn");
-    const spinner = document.getElementById("spinner");
-    const playlistEl = document.getElementById("playlist");
-    const llmSelect = document.getElementById("llm");
-    const sourceSelect = document.getElementById("source");
-    const promptInput = document.getElementById("prompt");
+<div class="card">
 
-    let tracks = [];
-    let currentIndex = 0;
-    let sourceMode = "youtube";
+<div class="controls">
 
-    async function generate() {
-      const prompt = promptInput.value.trim();
-      if (!prompt) return;
+<input id="prompt" placeholder="Describe music..."/>
 
-      const mode = llmSelect.value;
-      const source = sourceSelect.value;
-      sourceMode = source;
+<select id="llm">
+<option value="openai">OpenAI</option>
+<option value="local">Local LLM</option>
+</select>
 
-      btn.disabled = true;
-      spinner.style.display = "block";
-      playlistEl.innerHTML = "";
-      audioPlayer.style.display = "none";
+<select id="source">
+<option value="youtube">YouTube</option>
+<option value="local">Local MP3s</option>
+</select>
 
-      try {
-        const res = await fetch("/playlist", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt, mode, source })
-        });
-        const data = await res.json();
-        tracks = data.tracks || [];
-        currentIndex = 0;
-        renderPlaylist();
-      } catch (err) {
-        console.error(err);
-        alert("Failed to generate playlist.");
-      }
+<button id="btn">Generate</button>
 
-      spinner.style.display = "none";
-      btn.disabled = false;
-    }
+</div>
 
-    function renderPlaylist() {
-      playlistEl.innerHTML = "";
-      tracks.forEach((track, index) => {
-        const li = document.createElement("li");
-        const title = document.createElement("span");
-        title.textContent = track.title;
-        const tag = document.createElement("span");
-        tag.className = "now-playing";
-        tag.textContent = index === currentIndex ? "Now playing" : "";
-        li.appendChild(title);
-        li.appendChild(tag);
-        li.onclick = () => playTrack(index);
-        playlistEl.appendChild(li);
-      });
-      if (tracks.length > 0) playTrack(0);
-    }
+<div id="spinner" class="spinner"></div>
 
-    function playTrack(index) {
-      currentIndex = index;
-      document.querySelectorAll(".now-playing").forEach((el,i)=> el.textContent = i===index?"Now playing":"");
-      const track = tracks[index];
-      audioPlayer.style.display = "block";
-      audioPlayer.src = track.url;
-      audioPlayer.load();
-      audioPlayer.play();
-    }
+<div class="player">
+<audio id="audioPlayer" controls style="display:none;"></audio>
+</div>
 
-    audioPlayer.addEventListener("ended", () => {
-      if (currentIndex + 1 < tracks.length) playTrack(currentIndex + 1);
-    });
-  </script>
+</div>
+
+<div class="card">
+<ul id="playlist"></ul>
+</div>
+
+<footer>
+local-first AI music discovery
+</footer>
+
+</div>
+
+<script>
+
+const audioPlayer=document.getElementById("audioPlayer")
+const btn=document.getElementById("btn")
+const spinner=document.getElementById("spinner")
+const playlistEl=document.getElementById("playlist")
+const llmSelect=document.getElementById("llm")
+const sourceSelect=document.getElementById("source")
+const promptInput=document.getElementById("prompt")
+
+let tracks=[]
+let currentIndex=0
+
+btn.onclick=generate
+
+promptInput.addEventListener("keydown",e=>{
+if(e.key==="Enter")generate()
+})
+
+async function generate(){
+
+const prompt=promptInput.value.trim()
+if(!prompt)return
+
+btn.disabled=true
+spinner.style.display="block"
+playlistEl.innerHTML=""
+audioPlayer.style.display="none"
+
+try{
+
+const res=await fetch("/playlist",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+prompt,
+mode:llmSelect.value,
+source:sourceSelect.value
+})
+})
+
+const data=await res.json()
+
+tracks=data.tracks||[]
+currentIndex=0
+
+renderPlaylist()
+
+}catch(err){
+
+console.error(err)
+alert("Playlist generation failed")
+
+}
+
+spinner.style.display="none"
+btn.disabled=false
+
+}
+
+function renderPlaylist(){
+
+playlistEl.innerHTML=""
+
+tracks.forEach((track,index)=>{
+
+const li=document.createElement("li")
+
+if(index===currentIndex)li.classList.add("active")
+
+const title=document.createElement("div")
+title.className="track-title"
+title.textContent=track.title
+
+const status=document.createElement("div")
+status.className="now-playing"
+status.textContent=index===currentIndex?"Playing":""
+
+
+li.appendChild(title)
+li.appendChild(status)
+
+li.onclick=()=>playTrack(index)
+
+playlistEl.appendChild(li)
+
+})
+
+if(tracks.length>0)playTrack(0)
+
+}
+
+function playTrack(index){
+
+currentIndex=index
+
+document.querySelectorAll("li").forEach((li,i)=>{
+
+li.classList.toggle("active",i===index)
+
+})
+
+const track=tracks[index]
+
+audioPlayer.style.display="block"
+audioPlayer.src=track.url
+audioPlayer.load()
+audioPlayer.play()
+
+}
+
+audioPlayer.addEventListener("ended",()=>{
+
+if(currentIndex+1<tracks.length){
+
+playTrack(currentIndex+1)
+
+}
+
+})
+
+</script>
+
 </body>
 </html>
