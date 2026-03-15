@@ -1,105 +1,259 @@
-# 🎶 aiplaylist
+# 🎶 aiplay
 
-**aiplaylist** is an AI-powered music playlist generator that turns natural language prompts into playable playlists. It combines a FastAPI backend with a lightweight HTML/JavaScript frontend to search, generate, and stream music.
+**aiplay** is an AI-powered playlist generator that turns natural language prompts into playable music playlists.
 
-This project is built for learning, experimentation, and local use.
+Give it a prompt like:
 
----
+> *"lofi beats for late night coding"*
+> *"80s workout montage music"*
+> *"soft piano music for studying"*
 
-## ✨ Features
+…and **aiplay** will generate a playlist and stream the tracks automatically.
 
-- Generate playlists from text prompts (e.g., *"80s training montage music"*)
-- AI-curated song lists
-- Web-based playlist UI
-- Auto-playing tracks
-- Local streaming via HLS
-- FastAPI backend
+The project combines a **FastAPI backend**, a **lightweight web frontend**, and AI-powered playlist generation to create a simple local-first music discovery tool.
 
----
-
-## 🧱 Tech Stack
-
-- **Backend:** FastAPI (Python)
-- **Frontend:** HTML + JavaScript
-- **Streaming:** HLS.js
-- **Media tools:** yt-dlp
-- **AI:** OpenAI CLI
+This project is designed for **learning, experimentation, and self-hosting**.
 
 ---
 
-## 🚀 Getting Started
+# ✨ Features
 
-### 1. Clone the repo
+* 🎧 Generate playlists from natural language prompts
+* 🤖 AI-curated song lists
+* 🌐 Web-based playlist interface
+* ▶️ Automatic track playback
+* 📡 Streaming via HLS
+* 🔎 YouTube search via `yt-dlp`
+* 💿 Optional local music library support
+* 🐳 Easy container deployment with Docker
 
-```bash
+---
+
+# 🧱 Tech Stack
+
+| Component   | Technology              |
+| ----------- | ----------------------- |
+| Backend     | FastAPI                 |
+| Frontend    | HTML + JavaScript       |
+| Streaming   | HLS.js                  |
+| Media Tools | yt-dlp                  |
+| AI          | OpenAI API or local LLM |
+| Container   | Docker                  |
+
+---
+
+# 📦 Project Structure
+
+```
+aiplay/
+│
+├─ backend/
+│   ├─ main.py
+│   ├─ requirements.txt
+│   └─ .env
+│
+├─ frontend/
+│   └─ index.html
+│
+├─ Dockerfile
+└─ README.md
+```
+
+---
+
+# 🚀 Getting Started (Local Development)
+
+## 1️⃣ Clone the repository
+
+```
 git clone https://github.com/yourusername/aiplay.git
 cd aiplay
 ```
 
-### 2. Create and configure `.env`
-Create a .env file in the backend/ directory:
+---
 
-```bash
-OPENAI_API_KEY=your_api_key_here
+## 2️⃣ Create `.env`
+
+Create a `.env` file inside the **backend directory**:
+
+```
+OPENAI_API_KEY=your_openai_key_here
 ```
 
-### 3. Install dependencies
+Optional variables:
 
-Make sure these tools are installed:
+```
+LOCAL_LLM_URL=http://localhost:8080/v1/chat/completions
+LOCAL_MUSIC_DIR=/mnt/server/Music
+PORT=8000
+NUM_TRACKS=12
+```
 
-- `python`
-- `pip`
-- `yt-dlp`
-- `openai CLI`
+---
 
-Python packages:
+## 3️⃣ Install dependencies
 
-```bash
+System tools required:
+
+* Python
+* pip
+* yt-dlp
+* ffmpeg
+
+Install Python packages:
+
+```
 pip install fastapi uvicorn python-dotenv requests
 ```
 
-### 4. Run the backend
+---
 
-```bash
+## 4️⃣ Run the backend
+
+```
 cd backend
+
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-### 5. Run the frontend
+---
 
-Open `index.html` in your browser or serve it with:
+## 5️⃣ Run the frontend
 
-```bash
+Open the frontend directly or serve it locally:
+
+```
+cd frontend
 python3 -m http.server 8080
 ```
 
-Then visit:
-```bash
+Visit:
+
+```
 http://localhost:8080
 ```
 
-### Or run it Containerized
+---
 
-Clone the repo, add your `.env` file with your OpenAI api key in the `backend` directory. Then from the root directory:
+# 🐳 Running with Docker
+
+Docker is the easiest way to run **aiplay**.
+
+## 1️⃣ Build the container
+
+From the project root:
+
 ```
-docker build aiplay:latest .
-```
-Then
-```
-docker run -p 8000:8000 aiplay:latest
+docker build -t aiplay .
 ```
 
-## ⚠️ Legal Note
+---
 
-This project is intended for local development and personal learning. If you plan to deploy it publicly, you should use official streaming APIs (such as the YouTube IFrame Player) instead of proxying or re-streaming content.
+## 2️⃣ Create an `.env` file
 
-## Project Goal
+Example:
 
-This project is part of a larger effort to explore:
-- AI-assisted media generation
-- Local-first applications
-- DevOps-friendly tooling
+```
+OPENAI_API_KEY=your_openai_api_key
 
-## License
+LOCAL_LLM_URL=http://localhost:8080/v1/chat/completions
+
+LOCAL_MUSIC_DIR=/music
+
+PORT=8000
+
+NUM_TRACKS=12
+```
+
+---
+
+## 3️⃣ Run the container
+
+```
+docker run \
+-p 8000:8000 \
+--env-file backend/.env \
+-v /mnt/server/Music:/music \
+aiplay
+```
+
+Then open:
+
+```
+http://localhost:8000/app
+```
+
+---
+
+# ⚙️ Environment Variables
+
+| Variable          | Description                     | Default                                     |
+| ----------------- | ------------------------------- | ------------------------------------------- |
+| `OPENAI_API_KEY`  | OpenAI API key                  | required                                    |
+| `LOCAL_LLM_URL`   | URL for local LLM API           | `http://localhost:8080/v1/chat/completions` |
+| `LOCAL_MUSIC_DIR` | Directory for local music files | `/music`                                    |
+| `PORT`            | FastAPI server port             | `8000`                                      |
+| `NUM_TRACKS`      | Number of songs per playlist    | `12`                                        |
+
+---
+
+# 🎵 Example Prompts
+
+Try prompts like:
+
+```
+90s alternative road trip music
+lofi beats for studying
+classic rock workout playlist
+chill electronic sunset vibes
+video game boss battle music
+```
+
+---
+
+# ⚠️ Legal Note
+
+This project is intended for **local development and experimentation**.
+
+If deploying publicly, you should use **official streaming APIs** such as:
+
+* YouTube IFrame Player API
+* Spotify Web API
+* Apple Music API
+
+instead of proxying or restreaming media.
+
+---
+
+# 🎯 Project Goals
+
+This project explores:
+
+* AI-assisted media generation
+* Local-first applications
+* Lightweight self-hosted tools
+* DevOps-friendly containerized software
+
+---
+
+# 🧪 Future Ideas
+
+Possible improvements:
+
+* Spotify integration
+* Playlist saving
+* Music recommendation feedback
+* Voice prompt input
+* Home Assistant integration
+* Local LLM playlist generation
+* Full React frontend
+
+---
+
+# 📜 License
 
 MIT License
+
+---
+
+⭐ If you find this project interesting, consider giving it a star!

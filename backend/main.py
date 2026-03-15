@@ -27,17 +27,38 @@ except Exception:
 
 # ---------------- CONFIG ----------------
 
-load_dotenv()
+ENV_FILE = os.getenv("ENV_FILE", ".env")
+
+if os.path.exists(ENV_FILE):
+    load_dotenv(ENV_FILE)
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-LOCAL_LLM_URL = "http://localhost:8080/v1/chat/completions"
-LOCAL_MUSIC_DIR = "/mnt/server/Music"
 
-NUM_TRACKS = 12
+LOCAL_LLM_URL = os.getenv(
+    "LOCAL_LLM_URL",
+    "http://localhost:8080/v1/chat/completions"
+)
+
+LOCAL_MUSIC_DIR = os.getenv(
+    "LOCAL_MUSIC_DIR",
+    "/mnt/server/Music"
+)
+
+API_PORT = int(os.getenv("PORT", "8000"))
+
+NUM_TRACKS = int(os.getenv("NUM_TRACKS", "12"))
+
+BASE_URL = os.getenv(
+    "BASE_URL",
+    f"http://localhost:{API_PORT}"
+)
+
 LIB_INDEX = []
 
-if not OPENAI_API_KEY:
-    print("⚠️ OPENAI_API_KEY not set")
+print("Configuration:")
+print(" LOCAL_LLM_URL:", LOCAL_LLM_URL)
+print(" LOCAL_MUSIC_DIR:", LOCAL_MUSIC_DIR)
+print(" PORT:", API_PORT)
 
 # ---------------- FASTAPI ----------------
 
@@ -218,11 +239,11 @@ def create_playlist(data: Prompt):
             path = find_local_track(song)
             if path:
                 tracks.append({"title": os.path.basename(path),
-                               "url": f"http://localhost:8000/local/{quote(os.path.relpath(path, LOCAL_MUSIC_DIR))}"})
+                               "url": f"{BASE_URL}/local/{quote(os.path.relpath(path, LOCAL_MUSIC_DIR))}"})
         if not tracks:
             files = get_random_local_tracks()
             tracks = [{"title": os.path.basename(f),
-                       "url": f"http://localhost:8000/local/{quote(os.path.relpath(f, LOCAL_MUSIC_DIR))}"} for f in files]
+                       "url": f"{BASE_URL}/local/{quote(os.path.relpath(f, LOCAL_MUSIC_DIR))}"} for f in files]
         return {"tracks": tracks}
 
     # Youtube mode
