@@ -241,7 +241,7 @@ def search_youtube(song: str):
             "yt-dlp",
             "-f",
             "bestaudio",
-            f"ytsearch1:{song}",
+            f'ytsearch1:"{song}" audio',
             "--get-url",
             "--quiet"
         ]
