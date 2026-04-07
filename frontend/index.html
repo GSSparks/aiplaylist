@@ -197,43 +197,43 @@ footer{
 
 <body>
 
-<div class="app">
+<div class="app" role="main" aria-label="AI Playlist music player">
 
 <header>
-<div class="logo">ai<span>play</span>list</div>
-<div class="subtitle">AI-generated music playlists</div>
+<div class="logo" aria-label="Application title">ai<span>play</span>list</div>
+<div class="subtitle" aria-live="polite" aria-atomic="true">AI-generated music playlists</div>
 </header>
 
-<div class="card">
+<div class="card" role="region" aria-labelledby="controlsLabel">
 
-<div class="controls">
+<div class="controls" id="controlsLabel">
 
-<input id="prompt" placeholder="Describe music..."/>
+<input id="prompt" placeholder="Describe music..." aria-label="Music description input"/>
 
-<select id="llm">
+<select id="llm" aria-label="Select AI language model">
 <option value="openai">OpenAI</option>
 <option value="local">Local LLM</option>
 </select>
 
-<select id="source">
+<select id="source" aria-label="Select music source">
 <option value="youtube">YouTube</option>
 <option value="local">Local MP3s</option>
 </select>
 
-<button id="btn">Generate</button>
+<button id="btn" aria-label="Generate playlist based on description">Generate</button>
 
 </div>
 
-<div id="spinner" class="spinner"></div>
+<div id="spinner" class="spinner" role="status" aria-live="polite" aria-label="Loading, please wait" aria-hidden="true"></div>
 
-<div class="player">
-<audio id="audioPlayer" controls style="display:none;"></audio>
+<div class="player" role="region" aria-label="Audio player">
+<audio id="audioPlayer" controls style="display:none;" aria-live="polite" aria-atomic="true"></audio>
 </div>
 
 </div>
 
-<div class="card">
-<ul id="playlist"></ul>
+<div class="card" role="region" aria-label="Playlist tracks">
+<ul id="playlist" tabindex="0" aria-label="Generated playlist"></ul>
 </div>
 
 <footer>
@@ -268,6 +268,7 @@ async function generate() {
 
   btn.disabled = true
   spinner.style.display = "block"
+  spinner.setAttribute("aria-hidden", "false")
   playlistEl.innerHTML = ""
   audioPlayer.style.display = "none"
 
@@ -298,6 +299,7 @@ async function generate() {
   }
 
   spinner.style.display = "none"
+  spinner.setAttribute("aria-hidden", "true")
   btn.disabled = false
 
 }
@@ -314,7 +316,8 @@ function renderPlaylist() {
 
     li.setAttribute("tabindex", "0")
     li.setAttribute("role", "button")
-    li.setAttribute("aria-label", `Play track ${track.title}`)
+    li.setAttribute("aria-label", `Play track titled ${track.title}`)
+    li.setAttribute("aria-pressed", index === currentIndex ? "true" : "false")
 
     const title = document.createElement("div")
     title.className = "track-title"
@@ -329,7 +332,6 @@ function renderPlaylist() {
 
     li.onclick = () => playTrack(index)
 
-    // Keyboard navigation support for playlist items
     li.addEventListener("keydown", (e) => {
       switch (e.key) {
         case "ArrowDown":
@@ -369,6 +371,7 @@ function playTrack(index) {
   items.forEach((li, i) => {
 
     li.classList.toggle("active", i === index)
+    li.setAttribute("aria-pressed", i === index ? "true" : "false")
 
     const status = li.querySelector(".now-playing")
 
@@ -392,6 +395,9 @@ function playTrack(index) {
   audioPlayer.src = track.url
   audioPlayer.load()
   audioPlayer.play()
+
+  // Announce currently playing track for screen readers
+  audioPlayer.setAttribute("aria-label", `Playing track: ${track.title}`)
 
 }
 
