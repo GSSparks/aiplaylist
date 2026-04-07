@@ -152,6 +152,11 @@ li.active{
   transform:scale(1.02);
 }
 
+li:focus {
+  outline: 2px solid var(--accent2);
+  background-color: #0b1220;
+}
+
 .track-title{
   font-size:.95rem;
 }
@@ -239,138 +244,164 @@ local-first AI music discovery
 
 <script>
 
-const audioPlayer=document.getElementById("audioPlayer")
-const btn=document.getElementById("btn")
-const spinner=document.getElementById("spinner")
-const playlistEl=document.getElementById("playlist")
-const llmSelect=document.getElementById("llm")
-const sourceSelect=document.getElementById("source")
-const promptInput=document.getElementById("prompt")
+const audioPlayer = document.getElementById("audioPlayer")
+const btn = document.getElementById("btn")
+const spinner = document.getElementById("spinner")
+const playlistEl = document.getElementById("playlist")
+const llmSelect = document.getElementById("llm")
+const sourceSelect = document.getElementById("source")
+const promptInput = document.getElementById("prompt")
 
-let tracks=[]
-let currentIndex=0
+let tracks = []
+let currentIndex = 0
 
-btn.onclick=generate
+btn.onclick = generate
 
-promptInput.addEventListener("keydown",e=>{
-if(e.key==="Enter")generate()
+promptInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") generate()
 })
 
-async function generate(){
+async function generate() {
 
-const prompt=promptInput.value.trim()
-if(!prompt)return
+  const prompt = promptInput.value.trim()
+  if (!prompt) return
 
-btn.disabled=true
-spinner.style.display="block"
-playlistEl.innerHTML=""
-audioPlayer.style.display="none"
+  btn.disabled = true
+  spinner.style.display = "block"
+  playlistEl.innerHTML = ""
+  audioPlayer.style.display = "none"
 
-try{
+  try {
 
-const res=await fetch("/playlist",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-prompt,
-mode:llmSelect.value,
-source:sourceSelect.value
-})
-})
+    const res = await fetch("/playlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt,
+        mode: llmSelect.value,
+        source: sourceSelect.value
+      })
+    })
 
-const data=await res.json()
+    const data = await res.json()
 
-tracks=data.tracks||[]
-currentIndex=0
+    tracks = data.tracks || []
+    currentIndex = 0
 
-renderPlaylist()
+    renderPlaylist()
 
-}catch(err){
+  } catch (err) {
 
-console.error(err)
-alert("Playlist generation failed")
+    console.error(err)
+    alert("Playlist generation failed")
+
+  }
+
+  spinner.style.display = "none"
+  btn.disabled = false
 
 }
 
-spinner.style.display="none"
-btn.disabled=false
+function renderPlaylist() {
+
+  playlistEl.innerHTML = ""
+
+  tracks.forEach((track, index) => {
+
+    const li = document.createElement("li")
+
+    if (index === currentIndex) li.classList.add("active")
+
+    li.setAttribute("tabindex", "0")
+    li.setAttribute("role", "button")
+    li.setAttribute("aria-label", `Play track ${track.title}`)
+
+    const title = document.createElement("div")
+    title.className = "track-title"
+    title.textContent = track.title
+
+    const status = document.createElement("div")
+    status.className = "now-playing"
+    status.textContent = index === currentIndex ? "Playing" : ""
+
+    li.appendChild(title)
+    li.appendChild(status)
+
+    li.onclick = () => playTrack(index)
+
+    // Keyboard navigation support for playlist items
+    li.addEventListener("keydown", (e) => {
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault()
+          if (index + 1 < tracks.length) {
+            playlistEl.children[index + 1].focus()
+          }
+          break
+        case "ArrowUp":
+          e.preventDefault()
+          if (index - 1 >= 0) {
+            playlistEl.children[index - 1].focus()
+          }
+          break
+        case "Enter":
+        case " ":
+          e.preventDefault()
+          playTrack(index)
+          break
+      }
+    })
+
+    playlistEl.appendChild(li)
+
+  })
+
+  if (tracks.length > 0) playTrack(0)
 
 }
 
-function renderPlaylist(){
+function playTrack(index) {
 
-playlistEl.innerHTML=""
+  currentIndex = index
 
-tracks.forEach((track,index)=>{
+  const items = document.querySelectorAll("#playlist li")
 
-const li=document.createElement("li")
+  items.forEach((li, i) => {
 
-if(index===currentIndex)li.classList.add("active")
+    li.classList.toggle("active", i === index)
 
-const title=document.createElement("div")
-title.className="track-title"
-title.textContent=track.title
+    const status = li.querySelector(".now-playing")
 
-const status=document.createElement("div")
-status.className="now-playing"
-status.textContent=index===currentIndex?"Playing":""
+    if (status) {
+      status.textContent = i === index ? "Playing" : ""
+    }
 
+  })
 
-li.appendChild(title)
-li.appendChild(status)
+  const activeItem = items[index]
 
-li.onclick=()=>playTrack(index)
+  /* smooth scroll to track */
+  activeItem.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  })
 
-playlistEl.appendChild(li)
+  const track = tracks[index]
 
-})
-
-if(tracks.length>0)playTrack(0)
-
-}
-
-function playTrack(index){
-
-currentIndex=index
-
-const items=document.querySelectorAll("#playlist li")
-
-items.forEach((li,i)=>{
-
-li.classList.toggle("active",i===index)
-
-const status=li.querySelector(".now-playing")
-
-if(status){
-status.textContent=i===index?"Playing":""
-}
-
-})
-
-const activeItem=items[index]
-
-/* smooth scroll to track */
-activeItem.scrollIntoView({
-behavior:"smooth",
-block:"center"
-})
-
-const track=tracks[index]
-
-audioPlayer.style.display="block"
-audioPlayer.src=track.url
-audioPlayer.load()
-audioPlayer.play()
+  audioPlayer.style.display = "block"
+  audioPlayer.src = track.url
+  audioPlayer.load()
+  audioPlayer.play()
 
 }
 
-audioPlayer.addEventListener("ended",()=>{
+audioPlayer.addEventListener("ended", () => {
 
-if(currentIndex+1<tracks.length){
+  if (currentIndex + 1 < tracks.length) {
 
-playTrack(currentIndex+1)
+    playTrack(currentIndex + 1)
 
-}
+  }
 
 })
 
