@@ -89,7 +89,6 @@ log.info(" LOCAL_LLM_URL=%s", LOCAL_LLM_URL)
 log.info(" LOCAL_MUSIC_DIR=%s", LOCAL_MUSIC_DIR)
 log.info(" PORT=%s", API_PORT)
 
-
 # ---------------- FASTAPI ----------------
 
 app = FastAPI(title="aiplaylist")
