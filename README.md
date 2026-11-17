@@ -1,4 +1,4 @@
-# 🎶 aiplaylist
+# aiplaylist
 
 **aiplaylist** is an AI-powered playlist generator that turns natural language prompts into playable music playlists.
 
@@ -18,20 +18,20 @@ This project is designed for **learning, experimentation, and self-hosting**.
 
 ---
 
-# ✨ Features
+## Features
 
-* 🎧 Generate playlists from natural language prompts
-* 🤖 AI-curated song lists
-* 🌐 Web-based playlist interface
-* ▶️ Automatic track playback
-* 📡 Streaming via HLS
-* 🔎 YouTube search via `yt-dlp`
-* 💿 Optional local music library support
-* 🐳 Easy container deployment with Docker
+* Generate playlists from natural language prompts
+* AI-curated song lists
+* Web-based playlist interface
+* Automatic track playback
+* Streaming via HLS
+* YouTube search via `yt-dlp`
+* Optional local music library support
+* Easy container deployment with Docker
 
 ---
 
-# 🧱 Tech Stack
+## Tech Stack
 
 | Component   | Technology              |
 | ----------- | ----------------------- |
@@ -44,7 +44,7 @@ This project is designed for **learning, experimentation, and self-hosting**.
 
 ---
 
-# 📦 Project Structure
+## Project Structure
 
 ```
 aiplaylist/
@@ -63,9 +63,9 @@ aiplaylist/
 
 ---
 
-# 🚀 Getting Started (Local Development)
+## Getting Started (Local Development)
 
-## 1️⃣ Clone the repository
+### 1. Clone the repository
 
 ```
 git clone https://github.com/yourusername/aiplaylist.git
@@ -74,7 +74,7 @@ cd aiplaylist
 
 ---
 
-## 2️⃣ Create `.env`
+### 2. Create `.env`
 
 Create a `.env` file inside the **backend directory**:
 
@@ -93,7 +93,7 @@ NUM_TRACKS=12
 
 ---
 
-## 3️⃣ Install dependencies
+### 3. Install dependencies
 
 System tools required:
 
@@ -110,7 +110,7 @@ pip install fastapi uvicorn python-dotenv requests
 
 ---
 
-## 4️⃣ Run the backend
+### 4. Run the backend
 
 ```
 cd backend
@@ -120,7 +120,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 ---
 
-## 5️⃣ Run the frontend
+### 5. Run the frontend
 
 Open the frontend directly or serve it locally:
 
@@ -137,11 +137,11 @@ http://localhost:8080
 
 ---
 
-# 🐳 Running with Docker
+## Running with Docker
 
 Docker is the easiest way to run **aiplaylist**.
 
-## 1️⃣ Build the container
+### 1. Build the container
 
 From the project root:
 
@@ -151,7 +151,7 @@ docker build -t aiplaylist .
 
 ---
 
-## 2️⃣ Create an `.env` file
+### 2. Create an `.env` file
 
 Example:
 
@@ -169,7 +169,7 @@ NUM_TRACKS=12
 
 ---
 
-## 3️⃣ Run the container
+### 3. Run the container
 
 ```
 docker run \
@@ -187,7 +187,7 @@ http://localhost:8000/app
 
 ---
 
-# ⚙️ Environment Variables
+## Environment Variables
 
 | Variable          | Description                     | Default                                     |
 | ----------------- | ------------------------------- | ------------------------------------------- |
@@ -199,7 +199,7 @@ http://localhost:8000/app
 
 ---
 
-# 🎵 Example Prompts
+## Example Prompts
 
 Try prompts like:
 
@@ -213,7 +213,7 @@ video game boss battle music
 
 ---
 
-# ⚠️ Legal Note
+## Legal Note
 
 This project is intended for **local development and experimentation**.
 
@@ -227,7 +227,7 @@ instead of proxying or restreaming media.
 
 ---
 
-# 🎯 Project Goals
+## Project Goals
 
 This project explores:
 
@@ -238,7 +238,7 @@ This project explores:
 
 ---
 
-# 🧪 Future Ideas
+## Future Ideas
 
 Possible improvements:
 
@@ -252,10 +252,6 @@ Possible improvements:
 
 ---
 
-# 📜 License
+## License
 
 MIT License
-
----
-
-⭐ If you find this project interesting, consider giving it a star!
