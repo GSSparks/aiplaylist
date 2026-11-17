@@ -7,7 +7,7 @@ ENV LOCAL_LLM_URL=http://localhost:8080/v1/chat/completions
 ENV ENV_FILE=/app/.env
 
 RUN apt-get update && \
-    apt-get install -y ffmpeg curl wget git && \
+    apt-get install -y ffmpeg curl && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

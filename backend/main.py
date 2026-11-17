@@ -1,11 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, Response
 from fastapi.staticfiles import StaticFiles
-from fastapi import Request
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
 import subprocess
 import requests
@@ -13,7 +9,6 @@ import json
 import os
 import glob
 import random
-import difflib
 import string
 import logging
 
@@ -52,6 +47,8 @@ LOCAL_LLM_URL = os.getenv(
     "http://localhost:8080/v1/chat/completions"
 )
 
+LOCAL_LLM_MODEL = os.getenv("LOCAL_LLM_MODEL", "local-model")
+
 LOCAL_MUSIC_DIR = os.getenv(
     "LOCAL_MUSIC_DIR",
     "/mnt/server/Music"
@@ -60,16 +57,6 @@ LOCAL_MUSIC_DIR = os.getenv(
 API_PORT = int(os.getenv("PORT", "8000"))
 
 NUM_TRACKS = int(os.getenv("NUM_TRACKS", "12"))
-
-BASE_URL = os.getenv(
-    "BASE_URL",
-    f"http://localhost:{API_PORT}"
-)
-
-ALLOWED_ORIGINS = os.getenv(
-    "ALLOWED_ORIGINS",
-    "*"
-).split(",")
 
 PROXY_ALLOWED_DOMAINS = os.getenv(
     "PROXY_ALLOWED_DOMAINS",
@@ -93,17 +80,7 @@ log.info(" PORT=%s", API_PORT)
 
 app = FastAPI(title="aiplaylist")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS if ALLOWED_ORIGINS != ["*"] else ["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 app.mount("/app", StaticFiles(directory="../frontend", html=True), name="frontend")
-limiter = Limiter(key_func=get_remote_address)
-app.state.limiter = limiter
 
 # ---------------- MODELS ----------------
 
@@ -192,7 +169,7 @@ def generate_playlist_openai(prompt: str):
 def generate_playlist_local_llm(prompt: str):
 
     payload = {
-        "model": "local-model",
+        "model": LOCAL_LLM_MODEL,
         "messages": [
             {"role": "user",
              "content": f"Create JSON playlist of {NUM_TRACKS} songs for: '{prompt}'. "
@@ -254,7 +231,7 @@ def search_youtube(song: str):
 
         url = result.stdout.strip()
 
-        return url
+        return url or None
 
     except Exception as e:
         log.warning("YT search failed: %s", e)
@@ -361,8 +338,7 @@ def get_random_local_tracks():
 # ---------------- ROUTES ----------------
 
 @app.post("/playlist")
-@limiter.limit("10/minute")
-def create_playlist(request: Request, data: Prompt):
+def create_playlist(data: Prompt):
 
     songs = generate_playlist(data.prompt, data.mode)
 
@@ -380,7 +356,7 @@ def create_playlist(request: Request, data: Prompt):
 
                 tracks.append({
                     "title": os.path.basename(path),
-                    "url": f"{BASE_URL}/local/{quote(rel)}"
+                    "url": f"/local/{quote(rel)}"
                 })
 
         if not tracks:
@@ -389,7 +365,7 @@ def create_playlist(request: Request, data: Prompt):
 
             tracks = [{
                 "title": os.path.basename(f),
-                "url": f"{BASE_URL}/local/{quote(os.path.relpath(f, LOCAL_MUSIC_DIR))}"
+                "url": f"/local/{quote(os.path.relpath(f, LOCAL_MUSIC_DIR))}"
             } for f in files]
 
         return {"tracks": tracks}
@@ -415,10 +391,11 @@ def create_playlist(request: Request, data: Prompt):
 
         fallback = search_youtube("chill music mix")
 
-        tracks.append({
-            "title": "Fallback Mix",
-            "url": fallback
-        })
+        if fallback:
+            tracks.append({
+                "title": "Fallback Mix",
+                "url": fallback
+            })
 
     return {"tracks": tracks}
 
@@ -426,12 +403,11 @@ def create_playlist(request: Request, data: Prompt):
 @app.get("/local/{path:path}")
 def serve_local_mp3(path: str):
 
-    safe_path = os.path.normpath(unquote(path)).lstrip("/")
+    music_root = os.path.realpath(LOCAL_MUSIC_DIR)
+    full_path = os.path.realpath(os.path.join(LOCAL_MUSIC_DIR, unquote(path)))
 
-    if safe_path.startswith(".."):
+    if not full_path.startswith(music_root + os.sep):
         raise HTTPException(400, "Invalid path")
-
-    full_path = os.path.join(LOCAL_MUSIC_DIR, safe_path)
 
     if not os.path.isfile(full_path):
         raise HTTPException(404)

@@ -111,6 +111,14 @@ button:disabled{
   cursor:not-allowed;
 }
 
+#repeatBtn{
+  background:linear-gradient(135deg,#64748b,#475569);
+}
+
+#repeatBtn[aria-pressed="true"]{
+  background:linear-gradient(135deg,var(--accent),#2563eb);
+}
+
 /* ---------- PLAYER ---------- */
 
 .player{
@@ -222,6 +230,8 @@ footer{
 
 <button id="btn" aria-label="Generate playlist based on description">Generate</button>
 
+<button id="repeatBtn" aria-pressed="false" aria-label="Toggle repeat playlist">Repeat: Off</button>
+
 </div>
 
 <div id="spinner" class="spinner" role="status" aria-live="polite" aria-label="Loading, please wait" aria-hidden="true"></div>
@@ -261,24 +271,12 @@ promptInput.addEventListener("keydown", e => {
   if (e.key === "Enter") generate()
 })
 
-// Add a toggle button for Repeat feature
-const repeatBtn = document.createElement("button")
-repeatBtn.textContent = "Repeat: Off"
-repeatBtn.setAttribute("aria-pressed", "false")
-repeatBtn.setAttribute("aria-label", "Toggle repeat playlist")
-repeatBtn.style.marginLeft = "auto"
-repeatBtn.style.background = "linear-gradient(135deg,#64748b,#475569)"
-repeatBtn.style.color = "#e5e7eb"
-repeatBtn.style.borderRadius = "10px"
-repeatBtn.style.padding = "12px 18px"
-repeatBtn.style.fontSize = "15px"
-repeatBtn.style.cursor = "pointer"
+const repeatBtn = document.getElementById("repeatBtn")
 repeatBtn.addEventListener("click", () => {
   repeatPlaylist = !repeatPlaylist
   repeatBtn.textContent = `Repeat: ${repeatPlaylist ? "On" : "Off"}`
   repeatBtn.setAttribute("aria-pressed", repeatPlaylist.toString())
 })
-document.querySelector(".controls").appendChild(repeatBtn)
 
 async function generate() {
 
@@ -413,7 +411,7 @@ function playTrack(index) {
   audioPlayer.style.display = "block"
   audioPlayer.src = track.url
   audioPlayer.load()
-  audioPlayer.play()
+  audioPlayer.play().catch(() => {})
 
   // Announce currently playing track for screen readers
   audioPlayer.setAttribute("aria-label", `Playing track: ${track.title}`)
